@@ -1,0 +1,910 @@
+<title>Умник</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Unbounded:wght@500;700;800&display=swap">
+<style>
+:root{
+  --paper:#F3F5EF; --grid:rgba(62,96,170,.11); --sheet:#FFFFFD; --edge:#D9DEE9;
+  --ink:#1C295C; --soft:#5E678C; --margin:#D6473D; --hl:#F6D947; --hl-ink:#352B00;
+  --good:#1D8253; --good-bg:#E1F3E8; --bad:#BE322A; --bad-bg:#FBE6E3;
+  --key:#FFFFFF; --key-edge:#C9CFDF; --key-down:#EDF0F8;
+  --c-red:#D4302A; --c-blue:#2257D6; --c-green:#1C8F4E; --c-yellow:#C99700; --c-purple:#8A3BB5; --c-orange:#E0661B;
+  --display:'Unbounded','Arial Black',system-ui,sans-serif;
+  --body:'Golos Text',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --paper:#17221E; --grid:rgba(225,238,220,.055); --sheet:#1E2B27; --edge:#2E3F38;
+    --ink:#EBF0E6; --soft:#9DAEA4; --margin:#E07366; --hl:#F1D66A; --hl-ink:#2A2200;
+    --good:#62CC93; --good-bg:#1B392B; --bad:#F28C80; --bad-bg:#3D2421;
+    --key:#24342F; --key-edge:#33473F; --key-down:#2D3F39;
+    --c-red:#FF6B5E; --c-blue:#6E9BFF; --c-green:#4FD08A; --c-yellow:#F5D33F; --c-purple:#C98BF0; --c-orange:#FF9A4D;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --paper:#17221E; --grid:rgba(225,238,220,.055); --sheet:#1E2B27; --edge:#2E3F38;
+  --ink:#EBF0E6; --soft:#9DAEA4; --margin:#E07366; --hl:#F1D66A; --hl-ink:#2A2200;
+  --good:#62CC93; --good-bg:#1B392B; --bad:#F28C80; --bad-bg:#3D2421;
+  --key:#24342F; --key-edge:#33473F; --key-down:#2D3F39;
+  --c-red:#FF6B5E; --c-blue:#6E9BFF; --c-green:#4FD08A; --c-yellow:#F5D33F; --c-purple:#C98BF0; --c-orange:#FF9A4D;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{
+  margin:0; background-color:var(--paper); color:var(--ink); font:16px/1.45 var(--body);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:22px 22px; -webkit-tap-highlight-color:transparent;
+}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--c-blue);outline-offset:2px}
+#app{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:18px 28px;min-height:100%;display:flex;flex-direction:column}
+.view{display:flex;flex-direction:column;gap:18px;flex:1}
+
+/* ---------- home ---------- */
+.brand{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.logo{font:800 clamp(40px,11vw,58px)/1 var(--display);letter-spacing:-.02em;margin:0}
+.logo span{background:linear-gradient(transparent 58%,var(--hl) 58%,var(--hl) 90%,transparent 90%);padding-inline:2px}
+.lede{margin:0;color:var(--soft);max-width:44ch;text-wrap:pretty}
+.chip-btn{border:1.5px solid var(--key-edge);background:var(--key);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;white-space:nowrap}
+.modes{display:grid;gap:10px}
+.mode{position:relative;text-align:left;border:1.5px solid var(--ink);background:var(--sheet);border-radius:14px;padding:14px 16px 14px 18px;display:grid;grid-template-columns:1fr auto;gap:2px 12px;box-shadow:4px 4px 0 var(--ink);transition:transform .12s,box-shadow .12s}
+.mode:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--ink)}
+.mode:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+.m-name{font:700 19px/1.2 var(--display)}
+.m-desc{grid-column:1;color:var(--soft);font-size:14px}
+.m-best{grid-column:2;grid-row:1 / span 2;align-self:center;text-align:right;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}
+.m-best b{display:block;font:700 20px/1.1 var(--display);letter-spacing:0;color:var(--ink);font-variant-numeric:tabular-nums}
+.lbl{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--soft)}
+.setrow{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.stepper{display:flex;align-items:center;border:1.5px solid var(--key-edge);border-radius:12px;background:var(--key);overflow:hidden}
+.stepper button{border:0;background:none;width:44px;height:40px;font-size:20px}
+.stepper button:active{background:var(--key-down)}
+.stepper output{min-width:34px;text-align:center;font:700 17px var(--display);font-variant-numeric:tabular-nums}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--key-edge);background:var(--key);border-radius:999px;padding:7px 13px;font-size:14px;font-weight:600;color:var(--soft)}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--sheet)}
+.stats{border-top:2px dashed var(--key-edge);padding-top:16px;display:flex;flex-direction:column;gap:14px}
+.stats h2{margin:0;font:700 17px var(--display)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.kpi{display:flex;flex-direction:column;gap:2px}
+.kpi b{font:700 22px/1.1 var(--display);font-variant-numeric:tabular-nums}
+.kpi small{font-size:12px;color:var(--soft);line-height:1.25}
+.bars{display:grid;grid-template-columns:auto 1fr auto;gap:7px 12px;align-items:center;font-size:14px}
+.bar{height:9px;border-radius:5px;background:var(--key-edge);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ink);border-radius:5px}
+.bars .n{font-variant-numeric:tabular-nums;color:var(--soft);font-size:13px;text-align:right}
+.empty{color:var(--soft);font-size:14px;margin:0}
+@media (max-width:420px){.kpis{grid-template-columns:repeat(2,1fr)}}
+
+/* ---------- play ---------- */
+.hud{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:14px}
+.icon-btn{border:1.5px solid var(--key-edge);background:var(--key);border-radius:12px;width:42px;height:42px;font-size:18px;display:grid;place-items:center}
+.stat small{display:block;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--soft);line-height:1.1}
+.stat b{font:700 22px/1.15 var(--display);font-variant-numeric:tabular-nums}
+.prog{display:inline-flex;gap:3px;margin-left:6px;vertical-align:middle}
+.prog i{width:6px;height:6px;border-radius:50%;background:var(--key-edge)}
+.prog i.on{background:var(--ink)}
+.lives{display:flex;gap:4px}
+.lives i{width:13px;height:13px;border-radius:50%;border:2px solid var(--margin)}
+.lives i.on{background:var(--margin)}
+.streak{font-size:13px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--hl);color:var(--hl-ink);font-variant-numeric:tabular-nums}
+.streak.off{background:transparent;color:var(--soft);border:1.5px solid var(--key-edge)}
+
+.sheet{position:relative;background:var(--sheet);border:1.5px solid var(--edge);border-radius:6px 16px 16px 6px;padding:22px 18px 20px 58px;min-height:240px;display:flex;flex-direction:column;gap:12px;box-shadow:0 10px 30px -18px rgba(20,30,70,.35);overflow:hidden}
+.sheet::before{content:"";position:absolute;left:40px;top:0;bottom:0;width:2px;background:var(--margin);opacity:.55}
+.sheet.good{animation:good .5s}
+.sheet.bad{animation:shake .4s}
+@keyframes good{0%{background:var(--good-bg)}100%{background:var(--sheet)}}
+@keyframes shake{0%,100%{transform:none}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.timer{position:absolute;left:0;right:0;top:0;height:5px;background:transparent}
+.timer i{display:block;height:100%;width:100%;background:var(--ink);transform-origin:left;opacity:.8}
+.timer i.low{background:var(--margin)}
+.meta{display:flex;justify-content:space-between;gap:10px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--soft)}
+.meta #qno{font-family:var(--mono);letter-spacing:0}
+.q{font:600 19px/1.5 var(--body);text-wrap:pretty;overflow-wrap:anywhere}
+.q.big{font:700 clamp(30px,9vw,44px)/1.25 var(--display);letter-spacing:-.01em;overflow-wrap:normal}
+.q.mid{font:700 clamp(21px,6vw,28px)/1.35 var(--display);overflow-wrap:normal}
+.q .qm{display:inline-block;min-width:1.1em;text-align:center;background:var(--hl);color:var(--hl-ink);border-radius:6px;padding-inline:4px}
+.q .x{font-family:Georgia,'Times New Roman',serif;font-weight:700;font-style:italic;color:var(--margin)}
+.cmp{display:flex;flex-wrap:wrap;align-items:center;gap:.35em .5em}
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.05;font-size:.85em}
+.fr span:first-child{border-bottom:3px solid currentColor;padding-inline:4px}
+.q .fr{margin-inline:2px}
+.digits{font:700 clamp(30px,9vw,44px)/1.2 var(--mono);letter-spacing:.06em}
+.stroop{font:800 clamp(36px,11vw,54px)/1.1 var(--display);letter-spacing:.02em}
+.sub{color:var(--soft);font-weight:600;font-size:15px}
+.entry{font:700 clamp(28px,8vw,38px)/1.2 var(--display);font-variant-numeric:tabular-nums;min-height:1.3em;display:flex;align-items:baseline;gap:6px;border-bottom:2px dotted var(--key-edge);padding-bottom:4px}
+.entry .eq{color:var(--soft)}
+.caret{display:inline-block;width:3px;height:.95em;background:var(--ink);align-self:center;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.memo{height:6px;border-radius:3px;background:var(--key-edge);overflow:hidden}
+.memo i{display:block;height:100%;background:var(--hl);transform-origin:left}
+
+.fb{border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;font-size:15px}
+.fb.ok{background:var(--good-bg);color:var(--good);font-weight:700;flex-direction:row;justify-content:space-between;align-items:center}
+.fb.no{background:var(--bad-bg);color:var(--ink)}
+.fb .t{font-weight:700;color:var(--bad)}
+.fb .a{font-weight:700}
+.fb .a b{font-family:var(--display)}
+.fb .e{color:var(--soft)}
+.go{align-self:flex-start;margin-top:4px;border:0;border-radius:10px;background:var(--ink);color:var(--sheet);padding:10px 16px;font-weight:700}
+
+.answer{display:flex;flex-direction:column;gap:10px}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.key{height:56px;border:1.5px solid var(--key-edge);border-bottom-width:4px;border-radius:12px;background:var(--key);font:700 22px var(--display);touch-action:manipulation;user-select:none}
+.key:active,.key.down{background:var(--key-down);transform:translateY(2px);border-bottom-width:2px}
+.key.fn{font-size:18px;color:var(--soft)}
+.key.ok{grid-column:1 / -1;background:var(--ink);color:var(--sheet);border-color:var(--ink);font-size:17px}
+.key:disabled{opacity:.45;cursor:default}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choices.three{grid-template-columns:repeat(3,1fr)}
+.choices.one{grid-template-columns:1fr}
+.opt{min-height:58px;border:1.5px solid var(--key-edge);border-bottom-width:4px;border-radius:12px;background:var(--key);padding:10px 12px;font-weight:600;font-size:17px;line-height:1.25;text-align:left;display:flex;gap:10px;align-items:center;touch-action:manipulation}
+.opt .k{flex:none;font:600 11px var(--mono);color:var(--soft);border:1px solid var(--key-edge);border-radius:5px;padding:1px 5px}
+.opt.sym{justify-content:center;font:700 30px var(--display);min-height:66px}
+.opt.sym .k{display:none}
+.opt.num{font:700 22px var(--display);font-variant-numeric:tabular-nums}
+.opt:active{transform:translateY(2px);border-bottom-width:2px}
+.opt.ok{background:var(--good-bg);border-color:var(--good);color:var(--good)}
+.opt.no{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+.opt:disabled{cursor:default}
+.gridq{display:grid;gap:4px;width:100%;max-width:380px}
+.cell{aspect-ratio:1;max-width:100%;border:1px solid var(--edge);background:transparent;border-radius:6px;font:600 clamp(15px,4.6vw,24px)/1 var(--body);display:grid;place-items:center;padding:0;touch-action:manipulation}
+.cell:hover{background:var(--key-down)}
+.cell.ok{background:var(--good-bg);border-color:var(--good);color:var(--good)}
+.cell.no{background:var(--bad-bg);border-color:var(--bad)}
+
+/* ---------- over ---------- */
+.over-card{background:var(--sheet);border:1.5px solid var(--ink);border-radius:16px;padding:24px 20px;box-shadow:6px 6px 0 var(--ink);display:flex;flex-direction:column;gap:16px}
+.over-card h2{margin:0;font:700 15px var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--soft)}
+.big-score{font:800 clamp(52px,16vw,76px)/1 var(--display);font-variant-numeric:tabular-nums}
+.record{align-self:flex-start;background:var(--hl);color:var(--hl-ink);font-weight:700;border-radius:8px;padding:4px 10px;transform:rotate(-2deg)}
+.over-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+.btn{flex:1;min-width:140px;border:1.5px solid var(--ink);border-radius:12px;padding:13px 16px;font-weight:700;background:var(--key)}
+.btn.primary{background:var(--ink);color:var(--sheet)}
+
+.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 14px);transform:translateX(-50%);background:var(--hl);color:var(--hl-ink);font:700 15px var(--display);padding:9px 16px;border-radius:10px;box-shadow:0 8px 24px -10px rgba(0,0,0,.4);z-index:5;animation:pop .25s}
+@keyframes pop{from{transform:translate(-50%,-8px);opacity:0}}
+@media (max-width:420px){
+  .sheet{padding:20px 14px 18px 42px}
+  .sheet::before{left:28px}
+  .key{height:52px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+
+<div id="app">
+  <!-- НАЧАЛО -->
+  <section id="home" class="view">
+    <header class="brand">
+      <h1 class="logo">Умн<span>ик</span></h1>
+      <button id="snd" class="chip-btn" aria-pressed="true">Звук: вкл.</button>
+    </header>
+    <p class="lede">Безкрайна тренировка за ума: смятане, редици, памет, внимание и мисловни задачи. Всеки верен отговор вдига трудността, всяка грешка я сваля.</p>
+
+    <div class="modes">
+      <button class="mode" data-mode="endless">
+        <span class="m-name">Безкраен</span>
+        <span class="m-desc">3 живота и таймер. Всеки 10 верни подред връщат живот.</span>
+        <span class="m-best">рекорд<b id="b-endless">0</b></span>
+      </button>
+      <button class="mode" data-mode="zen">
+        <span class="m-name">Дзен</span>
+        <span class="m-desc">Без часовник и без край. Мисли колкото ти трябва.</span>
+        <span class="m-best">рекорд<b id="b-zen">0</b></span>
+      </button>
+      <button class="mode" data-mode="sprint">
+        <span class="m-name">Спринт</span>
+        <span class="m-desc">90 секунди — колкото повече верни, толкова повече точки.</span>
+        <span class="m-best">рекорд<b id="b-sprint">0</b></span>
+      </button>
+    </div>
+
+    <div class="setrow">
+      <span class="lbl">Начално ниво</span>
+      <div class="stepper">
+        <button id="lv-dn" aria-label="По-ниско ниво">−</button>
+        <output id="lv">1</output>
+        <button id="lv-up" aria-label="По-високо ниво">+</button>
+      </div>
+    </div>
+
+    <div class="setrow"><span class="lbl">Видове задачи</span><button id="all" class="chip-btn">Всички</button></div>
+    <div id="chips" class="chips"></div>
+
+    <section class="stats">
+      <h2>Твоята тетрадка</h2>
+      <div class="kpis">
+        <div class="kpi"><b id="k-total">0</b><small>решени задачи</small></div>
+        <div class="kpi"><b id="k-acc">—</b><small>точност</small></div>
+        <div class="kpi"><b id="k-level">1</b><small>най-високо ниво</small></div>
+        <div class="kpi"><b id="k-days">0</b><small>дни подред</small></div>
+      </div>
+      <div id="catbars" class="bars"></div>
+      <p id="nostats" class="empty">Още няма решени задачи. След първата игра тук ще видиш точността си по видове.</p>
+    </section>
+  </section>
+
+  <!-- ИГРА -->
+  <section id="play" class="view" hidden>
+    <div class="hud">
+      <button id="quit" class="icon-btn" aria-label="Край на играта">✕</button>
+      <div class="stat"><small>точки</small><b id="score">0</b></div>
+      <div class="stat"><small>ниво</small><b id="level">1</b><span id="prog" class="prog"></span></div>
+      <div id="side"></div>
+    </div>
+    <div id="sheet" class="sheet">
+      <div class="timer"><i id="bar"></i></div>
+      <div class="meta"><span id="cat"></span><span><span id="streak" class="streak off"></span> <span id="qno"></span></span></div>
+      <div id="q" class="q"></div>
+      <div id="memo" class="memo" hidden><i id="memobar"></i></div>
+      <div id="sub" class="sub"></div>
+      <div id="entry" class="entry" hidden><span class="eq">=</span><span id="entryv"></span><i class="caret"></i></div>
+      <div id="fb" class="fb" hidden></div>
+    </div>
+    <div id="answer" class="answer"></div>
+  </section>
+
+  <!-- КРАЙ -->
+  <section id="over" class="view" hidden>
+    <div class="over-card">
+      <h2 id="o-mode">Безкраен</h2>
+      <div class="big-score" id="o-score">0</div>
+      <div id="o-rec" class="record" hidden>Нов рекорд!</div>
+      <div class="over-grid kpis">
+        <div class="kpi"><b id="o-ok">0</b><small>верни отговора</small></div>
+        <div class="kpi"><b id="o-acc">0%</b><small>точност</small></div>
+        <div class="kpi"><b id="o-level">1</b><small>стигнато ниво</small></div>
+        <div class="kpi"><b id="o-streak">0</b><small>най-дълга серия</small></div>
+      </div>
+      <div class="btns">
+        <button id="again" class="btn primary">Пак</button>
+        <button id="tohome" class="btn">Към началото</button>
+      </div>
+    </div>
+  </section>
+  <div id="toast" class="toast" hidden></div>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const R = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const shuffle = arr => { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const gcd = (a, b) => b ? gcd(b, a % b) : a;
+const M = '−';
+const X = '<i class="x">x</i>';
+const fr = (p, q) => `<span class="fr"><span>${p}</span><span>${q}</span></span>`;
+const sgn = n => n >= 0 ? `+ ${n}` : `${M} ${-n}`;
+const co = n => n === 1 ? '' : n === -1 ? M : String(n);
+const dec = n => String(n).replace('.', ',');
+
+/* ================= ГЕНЕРАТОРИ НА ЗАДАЧИ ================= */
+
+function arith(L) {
+  const k = Math.min(L, 9), r = Math.random();
+  let a, b, c, d, q, ans;
+  if (k <= 1) {
+    a = R(2, 12); b = R(2, 12);
+    if (r < .55) { q = `${a} + ${b}`; ans = a + b; } else { if (a < b) [a, b] = [b, a]; q = `${a} ${M} ${b}`; ans = a - b; }
+  } else if (k === 2) {
+    if (r < .35) { a = R(11, 45); b = R(6, 35); q = `${a} + ${b}`; ans = a + b; }
+    else if (r < .65) { a = R(20, 60); b = R(6, a - 5); q = `${a} ${M} ${b}`; ans = a - b; }
+    else { a = R(2, 5); b = R(2, 10); q = `${a} × ${b}`; ans = a * b; }
+  } else if (k === 3) {
+    if (r < .25) { a = R(25, 75); b = R(15, 60); q = `${a} + ${b}`; ans = a + b; }
+    else if (r < .5) { a = R(50, 99); b = R(12, a - 10); q = `${a} ${M} ${b}`; ans = a - b; }
+    else if (r < .8) { a = R(3, 10); b = R(3, 10); q = `${a} × ${b}`; ans = a * b; }
+    else { b = R(2, 10); ans = R(2, 10); q = `${b * ans} ÷ ${b}`; }
+  } else if (k === 4) {
+    if (r < .3) { a = R(12, 49); b = R(3, 9); q = `${a} × ${b}`; ans = a * b; }
+    else if (r < .6) {
+      a = R(3, 9); b = R(3, 9);
+      if (Math.random() < .5) { c = R(2, 25); q = `${a} × ${b} + ${c}`; ans = a * b + c; }
+      else { c = R(2, a * b - 1); q = `${a} × ${b} ${M} ${c}`; ans = a * b - c; }
+    }
+    else if (r < .8) { b = R(3, 12); ans = R(4, 12); q = `${b * ans} ÷ ${b}`; }
+    else { a = R(120, 480); b = R(25, 99); q = `${a} + ${b}`; ans = a + b; }
+  } else if (k === 5) {
+    if (r < .25) { a = R(2, 12); b = R(2, 12); c = R(3, 7); q = `(${a} + ${b}) × ${c}`; ans = (a + b) * c; }
+    else if (r < .45) { a = R(11, 16); q = `${a}²`; ans = a * a; }
+    else if (r < .7) { a = R(21, 99); b = R(3, 9); q = `${a} × ${b}`; ans = a * b; }
+    else { a = R(300, 900); b = R(120, a - 50); q = `${a} ${M} ${b}`; ans = a - b; }
+  } else {
+    if (r < .3) { a = R(12, 15 + k * 2); b = R(11, 19); q = `${a} × ${b}`; ans = a * b; }
+    else if (r < .5) { a = R(4, 12); b = R(4, 12); c = R(3, 9); d = R(3, 9); q = `${a} × ${b} ${M} ${c} × ${d}`; ans = a * b - c * d; }
+    else if (r < .7) { b = R(3, 9); ans = R(15, 40 + k * 6); q = `${b * ans} ÷ ${b}`; }
+    else if (r < .85) { a = R(12, 25); q = `${a}²`; ans = a * a; }
+    else { a = R(150, 700); b = R(150, 700); c = R(50, 300); q = `${a} + ${b} ${M} ${c}`; ans = a + b - c; }
+  }
+  return { q, size: 'big', type: 'num', ans: String(ans), time: 7 + k * 2.5 };
+}
+
+function seq(L) {
+  const T = [
+    [1, () => { const a = R(1, 20), d = R(2, 6 + L); return { s: n => a + d * n, e: `Всяко следващо е с ${d} повече.` }; }],
+    [1, () => { const d = R(2, 9), a = R(6 * d, 6 * d + 40); return { s: n => a - d * n, e: `Всяко следващо е с ${d} по-малко.` }; }],
+    [2, () => { const q = pick([2, 2, 3]), a = q === 3 ? R(1, 3) : R(1, 6); return { s: n => a * q ** n, e: `Всяко следващо е ${q} пъти по-голямо.` }; }],
+    [3, () => { const a = R(1, 10), d = R(1, 4); return { s: n => a + d * n + n * (n - 1) / 2, e: `Разликите растат с по 1: +${d}, +${d + 1}, +${d + 2}…` }; }],
+    [4, () => { const a = R(1, 10), b = R(20, 40), d1 = R(2, 5), d2 = R(1, 4); return { s: n => n % 2 ? b - d2 * ((n - 1) / 2) : a + d1 * (n / 2), e: `Две редици една в друга: ${a}, ${a + d1}, ${a + 2 * d1}… и ${b}, ${b - d2}, ${b - 2 * d2}…` }; }],
+    [4, () => { const a = R(1, 7); return { s: n => (a + n) ** 2, e: `Квадрати: ${a}², ${a + 1}², ${a + 2}²…` }; }],
+    [5, () => { const f = [R(1, 5), R(1, 6)]; for (let i = 2; i < 8; i++) f.push(f[i - 1] + f[i - 2]); return { s: n => f[n], e: 'Всяко число е сбор от предишните две.' }; }],
+    [6, () => { const add = pick([1, 2, 3, -1]), f = [R(2, 5)]; for (let i = 1; i < 8; i++) f.push(f[i - 1] * 2 + add); return { s: n => f[n], e: `Умножи по 2 и ${add > 0 ? 'добави ' + add : 'извади ' + (-add)}.` }; }],
+    [6, () => { const k = R(1, 5), f = [R(1, 5)]; for (let i = 1; i < 8; i++) f.push(i % 2 ? f[i - 1] + k : f[i - 1] * 2); return { s: n => f[n], e: `Редуват се „+${k}“ и „×2“.` }; }],
+    [7, () => { const a = R(1, 4); return { s: n => (a + n) ** 3, e: `Кубове: ${a}³, ${a + 1}³, ${a + 2}³…` }; }],
+    [7, () => { const P = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53], o = R(0, 8); return { s: n => P[o + n], e: 'Прости числа — делят се само на 1 и на себе си.' }; }],
+  ];
+  const opts = T.filter(t => t[0] <= L);
+  const fresh = opts.filter(t => t[0] >= L - 2);
+  const g = pick(Math.random() < .6 && fresh.length ? fresh : opts)[1]();
+  const terms = [0, 1, 2, 3, 4].map(g.s);
+  return { q: terms.join(', ') + ', <b class="qm">?</b>', size: 'mid', sub: 'Кое число следва?', type: 'num', ans: String(g.s(5)), expl: g.e, time: 18 + Math.min(L, 8) * 2 };
+}
+
+function eq(L) {
+  const k = Math.min(L, 8), r = Math.random();
+  let x, a, b, c, d, q, e;
+  if (k === 1 || (k <= 3 && r < .3)) {
+    x = R(1, 15); a = R(1, 15); q = `${X} + ${a} = ${x + a}`; e = `${X} = ${x + a} ${M} ${a}`;
+  } else if (k === 2 || (k <= 4 && r < .5)) {
+    if (Math.random() < .5) { x = R(5, 30); a = R(1, x - 1); q = `${X} ${M} ${a} = ${x - a}`; e = `${X} = ${x - a} + ${a}`; }
+    else { a = R(2, 9); x = R(2, 10); q = `${a}${X} = ${a * x}`; e = `${X} = ${a * x} ÷ ${a}`; }
+  } else if (k <= 4) {
+    a = R(2, 9); x = R(1, 12);
+    if (Math.random() < .6) { b = R(1, 20); q = `${a}${X} + ${b} = ${a * x + b}`; e = `${a}${X} = ${a * x + b} ${M} ${b} = ${a * x}, значи ${X} = ${a * x} ÷ ${a}`; }
+    else { b = R(1, Math.max(1, a * x - 1)); q = `${a}${X} ${M} ${b} = ${a * x - b}`; e = `${a}${X} = ${a * x - b} + ${b} = ${a * x}, значи ${X} = ${a * x} ÷ ${a}`; }
+  } else if (k <= 6) {
+    if (r < .5) { a = R(2, 6); b = R(1, 9); x = R(1, 12); q = `${a}(${X} + ${b}) = ${a * (x + b)}`; e = `${X} + ${b} = ${a * (x + b)} ÷ ${a} = ${x + b}`; }
+    else { a = R(2, 6); x = a * R(2, 10); b = R(1, 15); q = `${X} ÷ ${a} + ${b} = ${x / a + b}`; e = `${X} ÷ ${a} = ${x / a}, значи ${X} = ${x / a} × ${a}`; }
+  } else {
+    do { a = R(3, 9); c = R(1, a - 1); x = R(-6, 15); b = R(1, 20) * pick([1, -1]); d = (a - c) * x + b; } while (d === 0 || x === 0);
+    q = `${a}${X} ${sgn(b)} = ${co(c)}${X} ${sgn(d)}`; e = `${co(a - c)}${X} = ${d - b}`;
+  }
+  return { q, size: 'mid', sub: `Намери ${X}`, type: 'num', ans: String(x), expl: 'Решение: ' + e + '.', time: 12 + k * 3 };
+}
+
+function sameValue(v) {
+  const f = [];
+  for (let i = 2; i * i <= v; i++) if (v % i === 0) f.push(i);
+  if (f.length && Math.random() < .5) { const i = pick(f); return `${i} × ${v / i}`; }
+  if (v > 2 && Math.random() < .6) { const s = R(1, v - 1); return `${v - s} + ${s}`; }
+  const s = R(2, 20); return `${v + s} ${M} ${s}`;
+}
+function cmpT(L) {
+  let A, B, s, e;
+  if (L >= 4 && Math.random() < .4) {
+    const q1 = R(2, 12), p1 = R(1, q1 - 1); let q2, p2;
+    if (Math.random() < .25) { const m = R(2, 4); p2 = p1 * m; q2 = q1 * m; }
+    else do { q2 = R(2, 12); p2 = R(1, q2 - 1); } while (p1 * q2 === p2 * q1);
+    A = fr(p1, q1); B = fr(p2, q2); s = Math.sign(p1 * q2 - p2 * q1);
+    e = `Кръстосано: ${p1} × ${q2} = ${p1 * q2} и ${p2} × ${q1} = ${p2 * q1}.`;
+  } else {
+    const lv = Math.max(1, L - 1), x = arith(lv), va = +x.ans; A = x.q; let vb;
+    if (Math.random() < .25 && va > 0) { B = sameValue(va); vb = va; }
+    else { let y; do { y = arith(lv); } while (+y.ans === va); B = y.q; vb = +y.ans; }
+    s = Math.sign(va - vb); e = `Лявото е ${va}, дясното е ${vb}.`;
+  }
+  return { q: `<span class="cmp"><span>${A}</span><b class="qm">?</b><span>${B}</span></span>`, size: 'mid', sub: 'Сравни лявата и дясната страна', type: 'choice', sym: true, keep: true, choices: ['<', '=', '>'], ans: s < 0 ? '<' : s > 0 ? '>' : '=', expl: e, time: 10 + Math.min(L, 8) * 2 };
+}
+
+function pct(L) {
+  const k = Math.min(L, 8), r = Math.random();
+  const multOf = (p, max) => { const u = 100 / gcd(p, 100); return u * R(Math.max(1, Math.ceil(20 / u)), Math.max(2, Math.floor(max / u))); };
+  let q, ans, e;
+  if (k <= 2) {
+    if (r < .35) { const n = R(3, 40) * 2; q = `Колко е половината от ${n}?`; ans = n / 2; e = `${n} ÷ 2 = ${ans}`; }
+    else if (r < .65) { const n = R(2, 15) * 4; q = `Колко е ${fr(1, 4)} от ${n}?`; ans = n / 4; e = `Една четвърт = делиш на 4: ${n} ÷ 4 = ${ans}`; }
+    else { const n = R(2, 15) * 10; q = `Колко е 10% от ${n}?`; ans = n / 10; e = `10% е една десета: ${n} ÷ 10 = ${ans}`; }
+  } else if (k <= 4) {
+    if (r < .3) { const p = pick([5, 20, 25, 50, 10]), n = multOf(p, 400); q = `Колко е ${p}% от ${n}?`; ans = n * p / 100; e = `${n} × ${p} ÷ 100 = ${ans}`; }
+    else if (r < .55) { const d = pick([3, 4, 5]), u = R(1, d - 1), n = d * R(3, 20); q = `Колко е ${fr(u, d)} от ${n}?`; ans = n / d * u; e = `${n} ÷ ${d} × ${u} = ${ans}`; }
+    else if (r < .8) { const p = pick([10, 20, 25, 50]), price = multOf(p, 300); ans = price * (100 - p) / 100; q = `Яке струва ${price} €. Намалено е с ${p}%. Колко струва сега?`; e = `${p}% от ${price} е ${price - ans}, а ${price} ${M} ${price - ans} = ${ans}`; }
+    else { const n = R(2, 9) * 3; ans = n / 3 * 2; q = `В клас има ${n} ученици. ${fr(2, 3)} от тях са момичета. Колко са момичетата?`; e = `${n} ÷ 3 × 2 = ${ans}`; }
+  } else {
+    if (r < .3) { const p = pick([15, 35, 45, 60, 75, 12, 8]), n = multOf(p, 600); q = `Колко е ${p}% от ${n}?`; ans = n * p / 100; e = `${n} × ${p} ÷ 100 = ${ans}`; }
+    else if (r < .5) { const p = pick([10, 20, 25, 50]), u = 100 / gcd(p, 100), x = u * R(2, 20), y = x * (100 + p) / 100; q = `Едно число се увеличава с ${p}% и става ${y}. Кое е числото?`; ans = x; e = `${y} ÷ ${dec((100 + p) / 100)} = ${x}`; }
+    else if (r < .7) { const p = pick([5, 10, 20, 25, 40, 50, 75]), b = (100 / gcd(p, 100)) * R(1, 10), a = b * p / 100; q = `${a} е колко процента от ${b}?`; ans = p; e = `${a} ÷ ${b} × 100 = ${p}%`; }
+    else if (r < .85) { const d = pick([6, 7, 8, 9, 12]), u = R(2, d - 1), n = d * R(4, 25); q = `Колко е ${fr(u, d)} от ${n}?`; ans = n / d * u; e = `${n} ÷ ${d} × ${u} = ${ans}`; }
+    else { const P = 100 * R(1, 6), up = pick([10, 20]); ans = P * (100 + up) * (100 - up) / 10000; q = `Цена ${P} € се вдига с ${up}%, после се сваля с ${up}%. Каква е новата цена?`; e = `${P} → ${P * (100 + up) / 100} → ${ans}. Свалянето е от по-голямо число, затова крайната цена е по-ниска.`; }
+  }
+  return { q, type: 'num', ans: String(ans), expl: e, time: 16 + k * 2.5 };
+}
+
+function mem(L) {
+  const len = Math.min(12, 3 + Math.floor(L / 2));
+  const d = Array.from({ length: len }, () => R(0, 9)).join('');
+  const rev = L >= 5 && Math.random() < .4;
+  return {
+    type: 'num', exact: true, ans: rev ? [...d].reverse().join('') : d,
+    memo: { html: `<span class="digits">${[...d].join(' ')}</span>`, ms: 900 + len * 550, sub: rev ? 'Запомни! После ще ги въведеш наобратно.' : 'Запомни цифрите!' },
+    q: `<span class="digits" style="opacity:.3">${'• '.repeat(len).trim()}</span>`,
+    sub: rev ? 'Въведи цифрите НАОБРАТНО' : 'Въведи цифрите в същия ред',
+    expl: `Показаните цифри бяха ${[...d].join(' ')}.`, time: 8 + len * 1.5,
+  };
+}
+
+const COLORS = [['червено', '--c-red'], ['синьо', '--c-blue'], ['зелено', '--c-green'], ['жълто', '--c-yellow'], ['лилаво', '--c-purple'], ['оранжево', '--c-orange']];
+function stroop(L) {
+  const w = pick(COLORS); let c;
+  do { c = pick(COLORS); } while (c === w && Math.random() < .85);
+  const askWord = L >= 3 && Math.random() < .3;
+  const ans = askWord ? w[0] : c[0];
+  const trap = askWord ? c[0] : w[0];
+  const ch = [ans]; if (trap !== ans) ch.push(trap);
+  for (const o of shuffle(COLORS.map(x => x[0]))) if (ch.length < 4 && !ch.includes(o)) ch.push(o);
+  return {
+    q: `<span class="stroop" style="color:var(${c[1]})">${w[0].toUpperCase()}</span>`,
+    sub: askWord ? 'Каква ДУМА пише? (не гледай цвета)' : 'В какъв ЦВЯТ са буквите? (не чети думата)',
+    type: 'choice', choices: shuffle(ch), ans, time: Math.max(3.5, 7 - L * .3),
+    expl: askWord ? `Пише „${w[0]}“, а буквите са ${c[0]}.` : `Буквите са ${c[0]}, а думата е „${w[0]}“.`,
+  };
+}
+
+const WORDS = {
+  'животни': ['котка', 'куче', 'кон', 'лъв', 'заек', 'мечка', 'вълк', 'лисица', 'крава', 'коза', 'тигър', 'слон'],
+  'плодове': ['ябълка', 'круша', 'банан', 'слива', 'череша', 'праскова', 'портокал', 'грозде', 'ягода', 'диня', 'кайсия'],
+  'зеленчуци': ['домат', 'краставица', 'морков', 'картоф', 'лук', 'чушка', 'зеле', 'тиквичка', 'спанак'],
+  'превозни средства': ['кола', 'влак', 'автобус', 'самолет', 'кораб', 'колело', 'трамвай', 'мотор'],
+  'инструменти': ['чук', 'трион', 'отвертка', 'клещи', 'брадва', 'гаечен ключ', 'пила'],
+  'музикални инструменти': ['китара', 'пиано', 'цигулка', 'барабан', 'флейта', 'тромпет', 'гъдулка', 'кавал'],
+  'държави': ['България', 'Гърция', 'Италия', 'Франция', 'Испания', 'Германия', 'Румъния', 'Полша'],
+  'части на тялото': ['ръка', 'крак', 'глава', 'нос', 'ухо', 'око', 'коляно', 'лакът'],
+  'птици': ['врабче', 'орел', 'гълъб', 'щъркел', 'лястовица', 'бухал', 'кос', 'чапла'],
+  'мебели': ['маса', 'стол', 'гардероб', 'легло', 'диван', 'рафт', 'скрин'],
+};
+function odd(L) {
+  let items, o, e;
+  if (Math.random() < .5) {
+    const types = ['par']; if (L >= 2) types.push('mul', 'mul'); if (L >= 4) types.push('prime'); if (L >= 5) types.push('sq');
+    const t = pick(types); const g = new Set();
+    if (t === 'par') {
+      const even = Math.random() < .5, half = 10 + L * 8;
+      while (g.size < 3) g.add(R(1, half) * 2 - (even ? 0 : 1));
+      o = R(1, half) * 2 - (even ? 1 : 0); e = even ? 'Другите са четни.' : 'Другите са нечетни.';
+    } else if (t === 'mul') {
+      const k = R(3, 9); while (g.size < 3) g.add(k * R(2, 12));
+      do { o = R(k * 2, k * 12); } while (o % k === 0); e = `Другите се делят на ${k}.`;
+    } else if (t === 'prime') {
+      const P = [5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73];
+      const C = [9, 15, 21, 25, 27, 33, 35, 39, 45, 49, 51, 55, 57, 63, 65, 69, 77, 81, 85, 87, 91];
+      shuffle(P).slice(0, 3).forEach(n => g.add(n)); o = pick(C);
+      e = `Другите са прости числа, а ${o} се дели и на други числа.`;
+    } else {
+      const S = [16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225];
+      shuffle(S).slice(0, 3).forEach(n => g.add(n));
+      do { o = pick(S) + pick([-2, -1, 1, 2, 3]); } while (S.includes(o));
+      e = 'Другите са точни квадрати (4 × 4, 5 × 5…).';
+    }
+    items = [...g].map(String); o = String(o);
+    return { sub: 'Кое число не е като другите?', type: 'choice', num: true, choices: shuffle([...items, o]), ans: o, expl: e, time: 10 + Math.min(L, 6) * 1.5 };
+  }
+  const keys = Object.keys(WORDS), A = pick(keys); let B; do { B = pick(keys); } while (B === A);
+  items = shuffle(WORDS[A]).slice(0, 3); o = pick(WORDS[B]);
+  return { sub: 'Коя дума не е от групата?', type: 'choice', choices: shuffle([...items, o]), ans: o, expl: `Другите са ${A}, а „${o}“ е от ${B}.`, time: 8 + Math.min(L, 6) };
+}
+
+const PAIRS = [['О', 'Q'], ['Ш', 'Щ'], ['И', 'Й'], ['Б', 'В'], ['П', 'Н'], ['6', '8'], ['3', '8'], ['E', 'F'], ['b', 'd'], ['M', 'N'], ['◐', '◑'], ['↗', '↖'], ['p', 'q'], ['C', 'G'], ['Ц', 'Щ'], ['1', '7']];
+function grid(L) {
+  const n = Math.min(8, 3 + Math.floor((L + 1) / 2));
+  const [a, b] = shuffle(pick(PAIRS)), idx = R(0, n * n - 1);
+  return { type: 'grid', n, a, b, ans: String(idx), sub: `Намери различния знак (${n} × ${n})`, show: `знакът „${b}“`, time: 5 + n * 1.4 };
+}
+
+/* ---- мисловни задачи ---- */
+const BANK = [
+  { q: 'Бухалка и топка струват общо 1,10 €. Бухалката е с 1 € по-скъпа от топката. Колко струва топката?', c: ['5 цента', '10 цента', '15 цента', '1 €'], a: '5 цента', e: 'Топка = x, бухалка = x + 1. Тогава 2x + 1 = 1,10, значи x = 0,05.' },
+  { q: '5 машини правят 5 джаджи за 5 минути. За колко минути 100 машини ще направят 100 джаджи?', c: ['5 минути', '100 минути', '20 минути', '1 минута'], a: '5 минути', e: 'Всяка машина прави една джаджа за 5 минути — колкото и машини да са.' },
+  { q: 'Петно водни лилии се удвоява всеки ден. За 48 дни покрива цялото езеро. За колко дни покрива половината?', c: ['47', '24', '46', '12'], a: '47', e: 'Щом се удвоява всеки ден, денят преди пълното покритие е била половината.' },
+  { q: 'Бащата на Мария има пет дъщери: Нана, Нене, Нини и Ноно. Как се казва петата?', c: ['Мария', 'Нуну', 'Нона', 'Не може да се каже'], a: 'Мария', e: 'Петата дъщеря е самата Мария.' },
+  { q: 'Колко месеца в годината имат 28 дни?', c: ['Всичките 12', '1', '2', '6'], a: 'Всичките 12', e: 'Всеки месец има поне 28 дни.' },
+  { q: 'В състезание изпреварваш бегача на второ място. На кое място си сега?', c: ['Второ', 'Първо', 'Трето', 'Зависи'], a: 'Второ', e: 'Заемаш неговото място — второто.' },
+  { q: 'От 3 ябълки вземаш 2. Колко ябълки имаш ти?', c: ['2', '1', '3', '5'], a: '2', e: 'Ти взе 2 — те са у теб.' },
+  { q: 'Фермер има 17 овце. Всички освен 9 избягват. Колко овце остават?', c: ['9', '8', '17', '0'], a: '9', e: '„Всички освен 9“ значи, че 9 остават.' },
+  { q: 'Сестрата на Иван е с 3 години по-голяма от него. Преди 5 години тя е била на 10. На колко години е Иван сега?', c: ['12', '13', '18', '7'], a: '12', e: 'Сестрата сега е на 15, значи Иван е на 12.' },
+  { q: 'В тъмна стая има свещ, газена лампа и печка. Имаш кибрит с една клечка. Какво палиш първо?', c: ['Клечката', 'Свещта', 'Лампата', 'Печката'], a: 'Клечката', e: 'Без запалена клечка нищо друго не пали.' },
+  { q: 'Кое е по-тежко: килограм пера или килограм желязо?', c: ['Тежат еднакво', 'Желязото', 'Перата', 'Зависи от обема'], a: 'Тежат еднакво', e: 'И двете са по един килограм.' },
+  { q: 'Часовникът показва 3:15. Колко градуса е ъгълът между стрелките?', c: ['7,5°', '0°', '15°', '90°'], a: '7,5°', e: 'За 15 минути часовата стрелка се е преместила с четвърт от 30°, тоест с 7,5°.' },
+  { q: '3 котки хващат 3 мишки за 3 минути. Колко котки ще хванат 100 мишки за 100 минути?', c: ['3', '100', '33', '9'], a: '3', e: 'Всяка котка хваща мишка за 3 минути — 3 котки за 100 минути хващат около 100.' },
+  { q: 'Колко пъти можеш да извадиш 5 от 25?', c: ['Веднъж', '5 пъти', '4 пъти', 'Безброй'], a: 'Веднъж', e: 'След първото изваждане вече вадиш от 20, не от 25.' },
+  { q: 'Дъска се реже на 10 парчета. Едно рязане отнема 1 минута. Колко минути общо?', c: ['9', '10', '11', '5'], a: '9', e: 'За 10 парчета са нужни 9 разреза.' },
+  { q: 'Ограда от 10 метра има колче на всеки метър, включително в двата края. Колко са колчетата?', c: ['11', '10', '9', '12'], a: '11', e: '10 отсечки имат 11 края.' },
+  { q: 'Охлюв се качва по стена от 10 м. Денем изкачва 3 м, нощем се смъква 2 м. На кой ден стига върха?', c: ['8-ия', '10-ия', '7-ия', '9-ия'], a: '8-ия', e: 'След 7 денонощия е на 7 м, а на 8-ия ден изкачва последните 3 м.' },
+  { q: 'Пет сестри са в стая. Анна чете, Бети играе шах, Вера готви, Гергана пере. Какво прави петата?', c: ['Играе шах', 'Спи', 'Чете', 'Не може да се каже'], a: 'Играе шах', e: 'Шахът се играе от двама — петата играе с Бети.' },
+  { q: 'Вчера беше неделя. Какъв ден ще бъде вдругиден?', c: ['Сряда', 'Вторник', 'Четвъртък', 'Понеделник'], a: 'Сряда', e: 'Днес е понеделник, вдругиден — сряда.' },
+  { q: 'Две майки и две дъщери са общо трима души. Как е възможно?', c: ['Баба, майка и дъщеря', 'Едната е близначка', 'Не е възможно', 'Двете са сестри'], a: 'Баба, майка и дъщеря', e: 'Майката е едновременно майка и дъщеря.' },
+  { q: 'Кое е повече: половината от 8 или 8 половинки?', c: ['Еднакви са', 'Половината от 8', '8 половинки', 'Не може да се сравни'], a: 'Еднакви са', e: 'И двете са 4.' },
+  { q: 'Самолет пада точно на границата между България и Гърция. Къде погребват оцелелите?', c: ['Никъде', 'В България', 'В Гърция', 'На границата'], a: 'Никъде', e: 'Оцелелите не се погребват.' },
+  { q: 'Колко пръста има на 10 ръце?', c: ['50', '100', '10', '20'], a: '50', e: '10 × 5 = 50.' },
+  { q: 'Коя буква следва: П, В, С, Ч, П, С, ?', c: ['Н', 'П', 'О', 'Д'], a: 'Н', e: 'Дните от седмицата: Понеделник… Събота, Неделя.' },
+  { q: 'Коя буква следва: Я, Ф, М, А, М, Ю, ?', c: ['Ю', 'А', 'С', 'О'], a: 'Ю', e: 'Месеците: Януари… Юни, Юли.' },
+  { q: 'Лекар ти дава 3 хапчета — по едно на всеки половин час. За колко минути ще ги изпиеш всички?', c: ['60', '90', '30', '45'], a: '60', e: 'Първото веднага, второто след 30 мин, третото след 60 мин.' },
+  { q: '2 души изкопават 2 ями за 2 часа. За колко време 1 човек изкопава половин яма?', c: ['1 час', '2 часа', '30 минути', '4 часа'], a: '1 час', e: 'Един човек копае една яма за 2 часа — половин яма за 1 час.' },
+  { q: 'Всички рози са цветя. Някои цветя увяхват бързо. Следва ли, че някои рози увяхват бързо?', c: ['Не непременно', 'Да', 'Не, никога', 'Само червените'], a: 'Не непременно', e: 'Бързо увяхващите цветя може изобщо да не са рози.' },
+  { q: 'Всички кучета лаят. Рекс е куче. Следва ли, че Рекс лае?', c: ['Да', 'Не', 'Не може да се каже', 'Само понякога'], a: 'Да', e: 'Щом всички кучета лаят и Рекс е куче — лае.' },
+  { q: 'Всички блимове са блонкове. Нито един блонк не е зелен. Може ли блим да е зелен?', c: ['Не', 'Да', 'Понякога', 'Не може да се каже'], a: 'Не', e: 'Всеки блим е блонк, а блонковете не са зелени.' },
+  { q: 'Влак, дълъг 1 км, се движи с 60 км/ч и минава през тунел от 1 км. За колко минути минава изцяло?', c: ['2', '1', '3', '1,5'], a: '2', e: 'Влакът трябва да измине 2 км (тунелът + собствената си дължина), по 1 км на минута.' },
+  { q: 'Червената къща е от червени тухли, синята — от сини. От какво е оранжерията?', c: ['От стъкло', 'От оранжеви тухли', 'От дърво', 'От бетон'], a: 'От стъкло', e: 'Оранжерията е стъклена постройка за растения.' },
+  { q: 'Какво става все по-мокро, колкото повече суши?', c: ['Кърпата', 'Слънцето', 'Вятърът', 'Сешоарът'], a: 'Кърпата', e: 'Кърпата попива водата.' },
+  { q: 'Колко е 2 + 2 × 2?', c: ['6', '8', '4', '10'], a: '6', e: 'Първо умножението: 2 × 2 = 4, после 2 + 4 = 6.' },
+  { q: 'В тъмно чекмедже има 10 черни и 10 бели чорапа. Колко най-малко трябва да извадиш, за да имаш сигурно чифт от един цвят?', c: ['3', '2', '11', '10'], a: '3', e: 'При два цвята третият чорап непременно съвпада с някой от първите два.' },
+  { q: 'Кое число следва: 2, 3, 5, 7, 11, ?', c: ['13', '12', '15', '14'], a: '13', e: 'Прости числа.' },
+  { q: 'Ако А = 1, Б = 2, В = 3 и т.н., колко е Г + Д?', c: ['9', '7', '11', '8'], a: '9', e: 'Г = 4, Д = 5.' },
+  { q: 'Баща и син са общо на 36 години. Бащата е 5 пъти по-възрастен от сина. На колко е синът?', c: ['6', '7', '5', '9'], a: '6', e: 'Син = x, баща = 5x, 6x = 36.' },
+  { q: 'Книга струва 10 € плюс половината от цената си. Колко струва?', c: ['20 €', '15 €', '10 €', '25 €'], a: '20 €', e: 'Щом 10 € са другата половина, цялата е 20 €.' },
+  { q: 'Цена се вдига с 10%, после се сваля с 10%. Каква е спрямо началната?', c: ['По-ниска', 'Същата', 'По-висока', 'Зависи от цената'], a: 'По-ниска', e: '100 → 110 → 99. Свалянето е от по-голямо число.' },
+  { q: 'На рафт стоят подред три тома по 100 страници. Червей прояжда от първата страница на том 1 до последната страница на том 3. Колко страници прояжда?', c: ['100', '300', '200', '102'], a: '100', e: 'Когато томът стои на рафта, първата му страница е отдясно, а последната на том 3 — отляво. Червеят минава само през том 2.' },
+  { q: 'Сборът на две числа е 10, а разликата им е 4. Кое е по-голямото?', c: ['7', '6', '8', '5'], a: '7', e: '(10 + 4) ÷ 2 = 7.' },
+  { q: 'Колко е 1 + 2 + 3 + … + 10?', c: ['55', '50', '45', '100'], a: '55', e: 'Двойки: 1 + 10, 2 + 9… — пет двойки по 11.' },
+  { q: 'Тухла тежи 1 кг плюс половин тухла. Колко тежи тухлата?', c: ['2 кг', '1,5 кг', '1 кг', '3 кг'], a: '2 кг', e: 'Щом 1 кг е другата половина, цялата е 2 кг.' },
+  { q: 'Стая има 4 ъгъла. Във всеки ъгъл седи котка, а срещу всяка котка седят 3 котки. Колко котки има в стаята?', c: ['4', '16', '12', '7'], a: '4', e: 'Всяка котка вижда другите три.' },
+  { q: 'Часовник изостава с 1 минута всеки час. С колко ще изостане за едно денонощие?', c: ['24 минути', '12 минути', '60 минути', '1 час и 24 мин'], a: '24 минути', e: 'Денонощието има 24 часа.' },
+  { q: 'Коя дума е написана „грешно“ във всеки речник?', c: ['„грешно“', '„правопис“', '„речник“', 'Няма такава'], a: '„грешно“', e: 'Думата „грешно“ винаги се пише „грешно“.' },
+  { q: 'Какво има точно в средата на „Париж“?', c: ['Буквата „р“', 'Айфеловата кула', 'Реката Сена', 'Буквата „и“'], a: 'Буквата „р“', e: 'П-а-р-и-ж: средната буква е „р“.' },
+  { q: 'Колко е 3 × 3 + 3 ÷ 3?', c: ['10', '4', '6', '12'], a: '10', e: '9 + 1 = 10 — умножението и делението са първи.' },
+  { q: 'Колко пъти за 12 часа часовата и минутната стрелка се застъпват?', c: ['11', '12', '24', '10'], a: '11', e: 'Стрелките се застъпват на всеки около 65 минути — 11 пъти за 12 часа.' },
+];
+const NAMES = ['Иван', 'Мария', 'Петър', 'Елена', 'Георги', 'Ани', 'Стефан', 'Дани', 'Виктор', 'Нина', 'Калина', 'Боби'];
+const DAYS = ['понеделник', 'вторник', 'сряда', 'четвъртък', 'петък', 'събота', 'неделя'];
+let bankOrder = [];
+function logic(L) {
+  if (Math.random() < .5) {
+    if (!bankOrder.length) bankOrder = shuffle(BANK.map((_, i) => i));
+    const b = BANK[bankOrder.pop()];
+    return { q: b.q, type: 'choice', choices: shuffle(b.c), ans: b.a, expl: b.e, time: 45 };
+  }
+  const kinds = ['order', 'day', 'hand', 'fence', 'age']; if (L >= 4) kinds.push('clock', 'order');
+  const k = pick(kinds);
+  if (k === 'order') {
+    const n = L >= 4 ? 4 : 3, p = shuffle(NAMES).slice(0, n), st = [];
+    for (let i = 0; i < n - 1; i++) st.push(Math.random() < .5 ? `${p[i]} бяга по-бързо от ${p[i + 1]}.` : `${p[i + 1]} бяга по-бавно от ${p[i]}.`);
+    const askFast = Math.random() < .5, ans = askFast ? p[0] : p[n - 1];
+    return { q: shuffle(st).join(' ') + (askFast ? ' Кой бяга най-бързо?' : ' Кой бяга най-бавно?'), type: 'choice', choices: shuffle(p), ans, expl: `От най-бързия: ${p.join(' → ')}.`, time: 25 + n * 4 };
+  }
+  if (k === 'day') {
+    const t = R(0, 6), n = R(2, 8 + L * 6), a = DAYS[(t + n) % 7];
+    const ch = [a]; for (const d of shuffle(DAYS)) if (ch.length < 4 && !ch.includes(d)) ch.push(d);
+    return { q: `Днес е ${DAYS[t]}. Какъв ден ще бъде след ${n} дни?`, type: 'choice', choices: shuffle(ch), ans: a, expl: `${n} дни = ${Math.floor(n / 7)} седмици и ${n % 7} дни напред от ${DAYS[t]}.`, time: 20 };
+  }
+  if (k === 'hand') {
+    const n = R(3, Math.min(12, 4 + L));
+    return { q: `${n} приятели се срещат и всеки се ръкува с всеки по веднъж. Колко ръкостискания има общо?`, type: 'num', ans: String(n * (n - 1) / 2), expl: `Всеки от ${n} стиска ръка на ${n - 1}, но всяко ръкостискане е броено два пъти: ${n} × ${n - 1} ÷ 2.`, time: 30 };
+  }
+  if (k === 'fence') {
+    const d = R(2, 6), c = R(3, 6 + L);
+    return { q: `Покрай алея, дълга ${d * c} м, на всеки ${d} м има дърво — включително в двата края. Колко са дърветата?`, type: 'num', ans: String(c + 1), expl: `${d * c} ÷ ${d} = ${c} разстояния, а дърветата са с едно повече.`, time: 30 };
+  }
+  if (k === 'age') {
+    const b = R(5, 15), t = R(Math.max(2, 20 - b), 20), a = 2 * b + t;
+    return { q: `Майката е на ${a} години, а дъщеря ѝ — на ${b}. След колко години майката ще бъде точно два пъти по-възрастна?`, type: 'num', ans: String(t), expl: `${a} + t = 2 × (${b} + t), значи t = ${a} ${M} ${2 * b} = ${t}.`, time: 40 };
+  }
+  const h = R(1, 12), m = L >= 6 ? R(0, 29) * 2 : R(0, 5) * 10;
+  let ang = Math.abs(30 * (h % 12) - 5.5 * m); if (ang > 180) ang = 360 - ang;
+  return { q: `Часовникът показва ${h}:${String(m).padStart(2, '0')}. Колко градуса е по-малкият ъгъл между стрелките?`, type: 'num', ans: String(ang), expl: `Часовата стрелка е на ${dec(30 * (h % 12) + m / 2)}°, минутната на ${6 * m}°.`, time: 45 };
+}
+
+const CATS = {
+  arith: { name: 'Смятане', gen: arith },
+  seq: { name: 'Редици', gen: seq },
+  eq: { name: 'Уравнения', gen: eq },
+  cmp: { name: 'Сравнение', gen: cmpT },
+  pct: { name: 'Дроби и проценти', gen: pct },
+  mem: { name: 'Памет', gen: mem },
+  stroop: { name: 'Цветове', gen: stroop },
+  odd: { name: 'Кое е различното', gen: odd },
+  grid: { name: 'Внимание', gen: grid },
+  logic: { name: 'Мисловни задачи', gen: logic },
+};
+
+/* ================= СЪХРАНЕНИЕ ================= */
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('umnik:' + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('umnik:' + k, JSON.stringify(v)); } catch (e) { } },
+};
+const stats = Object.assign({ best: { endless: 0, zen: 0, sprint: 0 }, bestLevel: 1, total: 0, correct: 0, cat: {}, day: null, days: 0 }, store.get('stats', {}));
+const prefs = Object.assign({ cats: Object.keys(CATS), start: 1, sound: true }, store.get('prefs', {}));
+prefs.cats = prefs.cats.filter(c => CATS[c]);
+const save = () => { store.set('stats', stats); store.set('prefs', prefs); };
+
+function ymd(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+function touchDay() {
+  const now = new Date(), today = ymd(now), y = new Date(now); y.setDate(now.getDate() - 1);
+  if (stats.day === today) return;
+  stats.days = stats.day === ymd(y) ? stats.days + 1 : 1; stats.day = today; save();
+}
+
+/* ================= ЗВУК ================= */
+let ac = null;
+function beep(ok) {
+  if (!prefs.sound) return;
+  try {
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime;
+    o.type = ok ? 'triangle' : 'square';
+    o.frequency.setValueAtTime(ok ? 660 : 200, t);
+    o.frequency.exponentialRampToValueAtTime(ok ? 990 : 130, t + .18);
+    g.gain.setValueAtTime(ok ? .16 : .06, t); g.gain.exponentialRampToValueAtTime(.001, t + .3);
+    o.connect(g).connect(ac.destination); o.start(t); o.stop(t + .32);
+  } catch (e) { }
+}
+
+/* ================= НАЧАЛЕН ЕКРАН ================= */
+const views = ['home', 'play', 'over'];
+function show(v) { views.forEach(x => $('#' + x).hidden = x !== v); window.scrollTo(0, 0); }
+
+function renderHome() {
+  for (const m of ['endless', 'zen', 'sprint']) $('#b-' + m).textContent = stats.best[m] || 0;
+  $('#lv').textContent = prefs.start;
+  $('#snd').textContent = prefs.sound ? 'Звук: вкл.' : 'Звук: изкл.';
+  $('#snd').setAttribute('aria-pressed', prefs.sound);
+  const chips = $('#chips'); chips.innerHTML = '';
+  for (const [id, c] of Object.entries(CATS)) {
+    const b = document.createElement('button'); b.className = 'chip'; b.textContent = c.name;
+    b.setAttribute('aria-pressed', prefs.cats.includes(id));
+    b.onclick = () => { prefs.cats = prefs.cats.includes(id) ? prefs.cats.filter(x => x !== id) : [...prefs.cats, id]; save(); renderHome(); };
+    chips.appendChild(b);
+  }
+  $('#k-total').textContent = stats.total;
+  $('#k-acc').textContent = stats.total ? Math.round(100 * stats.correct / stats.total) + '%' : '—';
+  $('#k-level').textContent = stats.bestLevel;
+  $('#k-days').textContent = stats.days;
+  const bars = $('#catbars'); bars.innerHTML = '';
+  const rows = Object.entries(CATS).filter(([id]) => stats.cat[id] && stats.cat[id][1]);
+  $('#nostats').hidden = rows.length > 0;
+  for (const [id, c] of rows) {
+    const [ok, all] = stats.cat[id], p = Math.round(100 * ok / all);
+    bars.insertAdjacentHTML('beforeend', `<span>${c.name}</span><span class="bar"><i style="width:${p}%"></i></span><span class="n">${p}% · ${ok}/${all}</span>`);
+  }
+}
+$('#snd').onclick = () => { prefs.sound = !prefs.sound; save(); renderHome(); beep(true); };
+$('#lv-dn').onclick = () => { prefs.start = Math.max(1, prefs.start - 1); save(); renderHome(); };
+$('#lv-up').onclick = () => { prefs.start = Math.min(10, prefs.start + 1); save(); renderHome(); };
+$('#all').onclick = () => { prefs.cats = prefs.cats.length === Object.keys(CATS).length ? ['arith'] : Object.keys(CATS); save(); renderHome(); };
+document.querySelectorAll('.mode').forEach(b => b.onclick = () => start(b.dataset.mode));
+
+let toastT;
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 1400); }
+
+/* ================= ИГРА ================= */
+const MODE_NAMES = { endless: 'Безкраен', zen: 'Дзен', sprint: 'Спринт' };
+const SPRINT_MS = 90000;
+let G = null;
+
+function start(mode) {
+  if (!prefs.cats.length) { toast('Избери поне един вид задачи'); return; }
+  G = { mode, score: 0, lives: mode === 'endless' ? 3 : 0, streak: 0, bestStreak: 0, level: prefs.start, maxLevel: prefs.start, prog: 0, wrongRun: 0, n: 0, ok: 0, done: 0, last: null, task: null, input: '', locked: true, waiting: false, timers: [], raf: 0, sprintEnd: mode === 'sprint' ? performance.now() + SPRINT_MS : 0 };
+  touchDay(); show('play'); hud(); next();
+  if (mode === 'sprint') sprintTick();
+}
+function later(fn, ms) { G.timers.push(setTimeout(fn, ms)); }
+function clearTimers() { G.timers.forEach(clearTimeout); G.timers = []; }
+
+function pickCat() {
+  let pool = prefs.cats.filter(c => c !== G.last);
+  if (!pool.length) pool = prefs.cats;
+  if (pool.includes('logic') && Math.random() < .12) return 'logic';
+  return pick(pool);
+}
+
+function hud() {
+  $('#score').textContent = G.score;
+  $('#level').textContent = G.level;
+  $('#prog').innerHTML = [0, 1, 2, 3].map(i => `<i class="${i < G.prog ? 'on' : ''}"></i>`).join('');
+  const side = $('#side');
+  if (G.mode === 'endless') side.innerHTML = `<div class="lives" aria-label="${G.lives} живота">${[0, 1, 2, 3, 4].slice(0, Math.max(3, G.lives)).map(i => `<i class="${i < G.lives ? 'on' : ''}"></i>`).join('')}</div>`;
+  else if (G.mode === 'sprint') side.innerHTML = `<div class="stat"><small>остават</small><b id="clock">90</b></div>`;
+  else side.innerHTML = `<div class="stat"><small>решени</small><b>${G.ok}</b></div>`;
+  const s = $('#streak'); s.textContent = G.streak >= 2 ? `серия ×${G.streak}` : ''; s.className = 'streak' + (G.streak >= 2 ? '' : ' off'); s.hidden = G.streak < 2;
+}
+
+function setBar(frac, animateSec) {
+  const bar = $('#bar');
+  bar.style.transition = 'none'; bar.style.transform = `scaleX(${frac})`; bar.classList.remove('low');
+  if (animateSec) {
+    void bar.offsetWidth;
+    bar.style.transition = `transform ${animateSec}s linear`; bar.style.transform = 'scaleX(0)';
+    later(() => bar.classList.add('low'), animateSec * 700);
+  }
+}
+
+function next() {
+  if (!G) return;
+  clearTimers();
+  const cat = pickCat(), t = CATS[cat].gen(G.level);
+  t.cat = cat; G.last = cat; G.task = t; G.input = ''; G.waiting = false; G.n++;
+  $('#cat').textContent = CATS[cat].name;
+  $('#qno').textContent = '№ ' + G.n;
+  $('#fb').hidden = true;
+  $('#sheet').classList.remove('good', 'bad');
+  const q = $('#q');
+  q.className = 'q' + (t.size ? ' ' + t.size : '');
+  $('#entry').hidden = t.type !== 'num';
+  drawEntry();
+  renderAnswer(t);
+  if (G.mode === 'zen') setBar(0);
+  if (t.memo) {
+    G.locked = true;
+    q.innerHTML = t.memo.html; $('#sub').textContent = t.memo.sub;
+    $('#entry').hidden = true; $('#memo').hidden = false;
+    const mb = $('#memobar'); mb.style.transition = 'none'; mb.style.transform = 'scaleX(1)'; void mb.offsetWidth;
+    mb.style.transition = `transform ${t.memo.ms}ms linear`; mb.style.transform = 'scaleX(0)';
+    setPad(false);
+    later(() => { $('#memo').hidden = true; $('#entry').hidden = false; q.innerHTML = t.q; $('#sub').innerHTML = t.sub; setPad(true); go(); }, t.memo.ms);
+  } else {
+    $('#memo').hidden = true;
+    if (t.type !== 'grid') q.innerHTML = t.q || '';
+    $('#sub').innerHTML = t.sub || '';
+    go();
+  }
+}
+function go() {
+  G.locked = false; G.t0 = performance.now();
+  if (G.mode === 'endless') { setBar(1, G.task.time); later(() => answer(null), G.task.time * 1000); }
+}
+
+function renderAnswer(t) {
+  const box = $('#answer'); box.innerHTML = '';
+  if (t.type === 'num') {
+    const pad = document.createElement('div'); pad.className = 'pad';
+    ['7', '8', '9', '4', '5', '6', '1', '2', '3', '−', '0', '⌫', 'Готово'].forEach(k => {
+      const b = document.createElement('button');
+      b.className = 'key' + (k === 'Готово' ? ' ok' : (k === '−' || k === '⌫') ? ' fn' : '');
+      b.textContent = k; b.dataset.k = k;
+      b.setAttribute('aria-label', k === '−' ? 'минус' : k === '⌫' ? 'изтрий' : k);
+      b.onclick = () => press(k);
+      pad.appendChild(b);
+    });
+    box.appendChild(pad);
+  } else if (t.type === 'choice') {
+    const ch = document.createElement('div');
+    ch.className = 'choices' + (t.sym ? ' three' : t.choices.some(c => c.length > 22) ? ' one' : '');
+    t.choices.forEach((c, i) => {
+      const b = document.createElement('button');
+      b.className = 'opt' + (t.sym ? ' sym' : '') + (t.num ? ' num' : '');
+      b.innerHTML = `<span class="k">${i + 1}</span><span></span>`; b.lastChild.textContent = c;
+      b.dataset.v = c; b.onclick = () => answer(c);
+      ch.appendChild(b);
+    });
+    box.appendChild(ch);
+  } else if (t.type === 'grid') {
+    const g = document.createElement('div'); g.className = 'gridq';
+    g.style.gridTemplateColumns = `repeat(${t.n},1fr)`;
+    for (let i = 0; i < t.n * t.n; i++) {
+      const b = document.createElement('button'); b.className = 'cell';
+      b.textContent = String(i) === t.ans ? t.b : t.a; b.dataset.v = String(i);
+      b.setAttribute('aria-label', 'клетка ' + (i + 1));
+      b.onclick = () => answer(String(i));
+      g.appendChild(b);
+    }
+    const q = $('#q'); q.innerHTML = ''; q.appendChild(g);
+  }
+}
+function setPad(on) { document.querySelectorAll('#answer .key').forEach(b => b.disabled = !on); }
+function drawEntry() { $('#entryv').textContent = G ? G.input : ''; }
+
+function press(k) {
+  if (!G || G.locked || !G.task || G.task.type !== 'num') return;
+  if (k === '⌫') G.input = G.input.slice(0, -1);
+  else if (k === '−') G.input = G.input.startsWith('-') ? G.input.slice(1) : '-' + G.input;
+  else if (k === 'Готово') { if (G.input && G.input !== '-') answer(G.input); return; }
+  else if (G.input.replace('-', '').length < 14) G.input += k;
+  drawEntry();
+}
+
+function answer(val) {
+  if (!G || G.locked || !G.task) return;
+  G.locked = true; G.done++; clearTimers();
+  const t = G.task;
+  const ok = val !== null && (t.type === 'num' ? (t.exact ? val === t.ans : Number(val) === Number(t.ans)) : String(val) === t.ans);
+  const frac = G.mode === 'endless' ? Math.max(0, 1 - (performance.now() - G.t0) / (t.time * 1000)) : 0;
+  const bar = $('#bar'); const cs = getComputedStyle(bar).transform; bar.style.transition = 'none'; bar.style.transform = cs === 'none' ? '' : cs;
+
+  stats.total++; if (ok) stats.correct++;
+  const c = stats.cat[t.cat] || [0, 0]; c[1]++; if (ok) c[0]++; stats.cat[t.cat] = c;
+
+  if (t.type === 'choice') document.querySelectorAll('#answer .opt').forEach(b => { b.disabled = true; if (b.dataset.v === t.ans) b.classList.add('ok'); else if (b.dataset.v === val) b.classList.add('no'); });
+  if (t.type === 'grid') document.querySelectorAll('#q .cell').forEach(b => { b.disabled = true; if (b.dataset.v === t.ans) b.classList.add('ok'); else if (b.dataset.v === val) b.classList.add('no'); });
+  if (t.type === 'num') setPad(false);
+
+  const sheet = $('#sheet'), fb = $('#fb');
+  sheet.classList.remove('good', 'bad'); void sheet.offsetWidth;
+  if (ok) {
+    G.ok++; G.streak++; G.bestStreak = Math.max(G.bestStreak, G.streak); G.wrongRun = 0; G.prog++;
+    const base = 10 * G.level, pts = base + Math.round(base * frac) + Math.min(G.streak, 10) * 2;
+    G.score += pts;
+    let msg = '';
+    if (G.prog >= 4) { G.level++; G.prog = 0; G.maxLevel = Math.max(G.maxLevel, G.level); msg = `Ниво ${G.level}`; }
+    if (G.mode === 'endless' && G.streak % 10 === 0 && G.lives < 5) { G.lives++; msg = 'Серия ×' + G.streak + ' — бонус живот'; }
+    if (msg) toast(msg);
+    sheet.classList.add('good'); beep(true);
+    fb.className = 'fb ok'; fb.innerHTML = `<span>Вярно!</span><span>+${pts}</span>`; fb.hidden = false;
+    hud(); save();
+    later(next, t.type === 'num' ? 650 : 750);
+  } else {
+    G.streak = 0; G.prog = 0; G.wrongRun++;
+    if (G.wrongRun >= 2 && G.level > 1) { G.level--; G.wrongRun = 0; toast(`Ниво ${G.level} — по-леко`); }
+    if (G.mode === 'endless') G.lives--;
+    sheet.classList.add('bad'); beep(false);
+    const shown = t.type === 'grid' ? t.show : t.type === 'num' && t.exact ? [...t.ans].join(' ') : t.ans;
+    const dead = G.mode === 'endless' && G.lives <= 0;
+    fb.className = 'fb no';
+    fb.innerHTML = `<span class="t">${val === null ? 'Времето изтече.' : 'Не е вярно.'}</span><span class="a">Отговор: <b></b></span>${t.expl ? '<span class="e"></span>' : ''}<button class="go" id="goBtn">${dead ? 'Виж резултата' : 'Продължи'} ↵</button>`;
+    fb.querySelector('.a b').textContent = shown;
+    if (t.expl) fb.querySelector('.e').innerHTML = t.expl;
+    fb.hidden = false; G.waiting = true;
+    $('#goBtn').onclick = cont; $('#goBtn').focus({ preventScroll: true });
+    hud(); save();
+  }
+}
+function cont() {
+  if (!G || !G.waiting) return;
+  G.waiting = false;
+  if (G.mode === 'endless' && G.lives <= 0) return end();
+  next();
+}
+
+function sprintTick() {
+  if (!G || G.mode !== 'sprint') return;
+  const left = Math.max(0, G.sprintEnd - performance.now());
+  const clk = $('#clock'); if (clk) clk.textContent = Math.ceil(left / 1000);
+  const bar = $('#bar'); bar.style.transition = 'none'; bar.style.transform = `scaleX(${left / SPRINT_MS})`; bar.classList.toggle('low', left < 15000);
+  if (left <= 0) return end();
+  G.raf = requestAnimationFrame(sprintTick);
+}
+
+function end() {
+  if (!G) return;
+  clearTimers(); cancelAnimationFrame(G.raf);
+  const rec = G.score > (stats.best[G.mode] || 0);
+  if (rec) stats.best[G.mode] = G.score;
+  stats.bestLevel = Math.max(stats.bestLevel, G.maxLevel);
+  save();
+  const answered = G.done;
+  $('#o-mode').textContent = MODE_NAMES[G.mode];
+  $('#o-score').textContent = G.score;
+  $('#o-rec').hidden = !(rec && G.score > 0);
+  $('#o-ok').textContent = G.ok;
+  $('#o-acc').textContent = answered > 0 ? Math.round(100 * G.ok / answered) + '%' : '—';
+  $('#o-level').textContent = G.maxLevel;
+  $('#o-streak').textContent = G.bestStreak;
+  lastMode = G.mode; G = null;
+  show('over');
+}
+let lastMode = 'endless';
+$('#quit').onclick = end;
+$('#again').onclick = () => start(lastMode);
+$('#tohome').onclick = () => { renderHome(); show('home'); };
+
+document.addEventListener('keydown', e => {
+  if (!G || $('#play').hidden || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (G.waiting) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); cont(); } return; }
+  const t = G.task; if (!t || G.locked) return;
+  if (t.type === 'num') {
+    let k = null;
+    if (/^[0-9]$/.test(e.key)) k = e.key;
+    else if (e.key === '-' || e.key === '−') k = '−';
+    else if (e.key === 'Backspace') k = '⌫';
+    else if (e.key === 'Enter') k = 'Готово';
+    if (k) {
+      e.preventDefault(); press(k);
+      const b = document.querySelector(`#answer .key[data-k="${k}"]`);
+      if (b) { b.classList.add('down'); setTimeout(() => b.classList.remove('down'), 110); }
+    }
+  } else if (t.type === 'choice') {
+    if (t.sym && ['<', '=', '>'].includes(e.key)) { e.preventDefault(); answer(e.key); return; }
+    const i = +e.key - 1;
+    if (i >= 0 && i < t.choices.length) { e.preventDefault(); answer(t.choices[i]); }
+  }
+});
+
+renderHome();
+})();
+</script>
