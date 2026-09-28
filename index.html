@@ -65,6 +65,11 @@ button:focus-visible{outline:3px solid var(--c-blue);outline-offset:2px}
 .m-desc{grid-column:1;color:var(--soft);font-size:14px}
 .m-best{grid-column:2;grid-row:1 / span 2;align-self:center;text-align:right;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}
 .m-best b{display:block;font:700 20px/1.1 var(--display);letter-spacing:0;color:var(--ink);font-variant-numeric:tabular-nums}
+.kids{border:2px dashed var(--key-edge);border-radius:16px;padding:14px 14px 16px;display:flex;flex-direction:column;gap:10px}
+.kids-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.kids h2{margin:0;font:700 19px/1.2 var(--display)}
+.kids .lede{font-size:14px}
+.tag{font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--hl);color:var(--hl-ink)}
 .lbl{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--soft)}
 .setrow{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .stepper{display:flex;align-items:center;border:1.5px solid var(--key-edge);border-radius:12px;background:var(--key);overflow:hidden}
@@ -213,6 +218,23 @@ button:focus-visible{outline:3px solid var(--c-blue);outline-offset:2px}
         <span class="m-best">рекорд<b id="b-sprint">0</b></span>
       </button>
     </div>
+
+    <section class="kids" aria-labelledby="kids-h">
+      <div class="kids-head"><h2 id="kids-h">Умножение до 10</h2><span class="tag">за децата</span></div>
+      <p class="lede">Само таблицата за умножение — от 2&nbsp;×&nbsp;2 до 10&nbsp;×&nbsp;10. Започва с ×2, ×5 и ×10 и постепенно добавя останалите.</p>
+      <div class="modes">
+        <button class="mode" data-mode="mul">
+          <span class="m-name">С време</span>
+          <span class="m-desc">Часовник за всяка задача и 3 живота.</span>
+          <span class="m-best">рекорд<b id="b-mul">0</b></span>
+        </button>
+        <button class="mode" data-mode="mulzen">
+          <span class="m-name">Без време</span>
+          <span class="m-desc">Без часовник и без край. Смятай спокойно.</span>
+          <span class="m-best">рекорд<b id="b-mulzen">0</b></span>
+        </button>
+      </div>
+    </section>
 
     <div class="setrow">
       <span class="lbl">Начално ниво</span>
@@ -598,6 +620,26 @@ function logic(L) {
   return { q: `Часовникът показва ${h}:${String(m).padStart(2, '0')}. Колко градуса е по-малкият ъгъл между стрелките?`, type: 'num', ans: String(ang), expl: `Часовата стрелка е на ${dec(30 * (h % 12) + m / 2)}°, минутната на ${6 * m}°.`, time: 45 };
 }
 
+/* ---- таблица за умножение (за децата) ---- */
+function mulHint(a, b) {
+  const s = Math.min(a, b), l = Math.max(a, b), p = a * b;
+  if (l === 10) return `По 10 — добавяш нула накрая: ${s} → ${p}.`;
+  if (l === 9) return `По 9 е по 10 без едно: ${s} × 10 ${M} ${s} = ${s * 10} ${M} ${s} = ${p}.`;
+  if (s === 5 || l === 5) { const n = s === 5 ? l : s; return `По 5 е половината от по 10: ${n} × 10 = ${n * 10}, а половината е ${p}.`; }
+  if (s <= 4) return `${s} пъти по ${l}: ${Array(s).fill(l).join(' + ')} = ${p}.`;
+  return `Разбий ${s} на 5 + ${s - 5}: 5 × ${l} + ${s - 5} × ${l} = ${5 * l} + ${(s - 5) * l} = ${p}.`;
+}
+let mulRecent = [];
+function mul(L) {
+  const T = L <= 1 ? [2, 5, 10] : L === 2 ? [2, 3, 4, 5, 10] : L === 3 ? [2, 3, 4, 5, 6, 10] : L === 4 ? [2, 3, 4, 5, 6, 7, 8, 9, 10] : [3, 4, 6, 7, 8, 9];
+  const lo = L >= 5 ? 3 : 2, hi = L >= 5 ? 9 : 10;
+  let a, b, key, tries = 0;
+  do { a = pick(T); b = R(lo, hi); key = Math.min(a, b) + 'x' + Math.max(a, b); } while (mulRecent.includes(key) && ++tries < 20);
+  mulRecent = [key, ...mulRecent].slice(0, 6);
+  if (Math.random() < .5) [a, b] = [b, a];
+  return { q: `${a} × ${b}`, size: 'big', type: 'num', ans: String(a * b), expl: mulHint(a, b), time: Math.max(6, 13 - L) };
+}
+
 const CATS = {
   arith: { name: 'Смятане', gen: arith },
   seq: { name: 'Редици', gen: seq },
@@ -609,16 +651,19 @@ const CATS = {
   odd: { name: 'Кое е различното', gen: odd },
   grid: { name: 'Внимание', gen: grid },
   logic: { name: 'Мисловни задачи', gen: logic },
+  mul: { name: 'Умножение до 10', gen: mul, solo: true },
 };
+// видовете за смесените режими; solo видовете имат свой режим
+const MIX = Object.keys(CATS).filter(c => !CATS[c].solo);
 
 /* ================= СЪХРАНЕНИЕ ================= */
 const store = {
   get(k, d) { try { const v = localStorage.getItem('umnik:' + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
   set(k, v) { try { localStorage.setItem('umnik:' + k, JSON.stringify(v)); } catch (e) { } },
 };
-const stats = Object.assign({ best: { endless: 0, zen: 0, sprint: 0 }, bestLevel: 1, total: 0, correct: 0, cat: {}, day: null, days: 0 }, store.get('stats', {}));
-const prefs = Object.assign({ cats: Object.keys(CATS), start: 1, sound: true }, store.get('prefs', {}));
-prefs.cats = prefs.cats.filter(c => CATS[c]);
+const stats = Object.assign({ best: { endless: 0, zen: 0, sprint: 0, mul: 0, mulzen: 0 }, bestLevel: 1, total: 0, correct: 0, cat: {}, day: null, days: 0 }, store.get('stats', {}));
+const prefs = Object.assign({ cats: MIX, start: 1, sound: true }, store.get('prefs', {}));
+prefs.cats = prefs.cats.filter(c => MIX.includes(c));
 const save = () => { store.set('stats', stats); store.set('prefs', prefs); };
 
 function ymd(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
@@ -648,13 +693,13 @@ const views = ['home', 'play', 'over'];
 function show(v) { views.forEach(x => $('#' + x).hidden = x !== v); window.scrollTo(0, 0); }
 
 function renderHome() {
-  for (const m of ['endless', 'zen', 'sprint']) $('#b-' + m).textContent = stats.best[m] || 0;
+  for (const m of Object.keys(MODES)) $('#b-' + m).textContent = stats.best[m] || 0;
   $('#lv').textContent = prefs.start;
   $('#snd').textContent = prefs.sound ? 'Звук: вкл.' : 'Звук: изкл.';
   $('#snd').setAttribute('aria-pressed', prefs.sound);
   const chips = $('#chips'); chips.innerHTML = '';
-  for (const [id, c] of Object.entries(CATS)) {
-    const b = document.createElement('button'); b.className = 'chip'; b.textContent = c.name;
+  for (const id of MIX) {
+    const b = document.createElement('button'); b.className = 'chip'; b.textContent = CATS[id].name;
     b.setAttribute('aria-pressed', prefs.cats.includes(id));
     b.onclick = () => { prefs.cats = prefs.cats.includes(id) ? prefs.cats.filter(x => x !== id) : [...prefs.cats, id]; save(); renderHome(); };
     chips.appendChild(b);
@@ -674,27 +719,37 @@ function renderHome() {
 $('#snd').onclick = () => { prefs.sound = !prefs.sound; save(); renderHome(); beep(true); };
 $('#lv-dn').onclick = () => { prefs.start = Math.max(1, prefs.start - 1); save(); renderHome(); };
 $('#lv-up').onclick = () => { prefs.start = Math.min(10, prefs.start + 1); save(); renderHome(); };
-$('#all').onclick = () => { prefs.cats = prefs.cats.length === Object.keys(CATS).length ? ['arith'] : Object.keys(CATS); save(); renderHome(); };
+$('#all').onclick = () => { prefs.cats = prefs.cats.length === MIX.length ? ['arith'] : MIX; save(); renderHome(); };
 document.querySelectorAll('.mode').forEach(b => b.onclick = () => start(b.dataset.mode));
 
 let toastT;
 function toast(msg) { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 1400); }
 
 /* ================= ИГРА ================= */
-const MODE_NAMES = { endless: 'Безкраен', zen: 'Дзен', sprint: 'Спринт' };
+// timed: часовник за всяка задача; cat: само един вид задачи, винаги от ниво 1
+const MODES = {
+  endless: { name: 'Безкраен', lives: 3, timed: true },
+  zen: { name: 'Дзен' },
+  sprint: { name: 'Спринт', sprint: true },
+  mul: { name: 'Умножение · с време', cat: 'mul', lives: 3, timed: true },
+  mulzen: { name: 'Умножение · без време', cat: 'mul' },
+};
 const SPRINT_MS = 90000;
 let G = null;
 
 function start(mode) {
-  if (!prefs.cats.length) { toast('Избери поне един вид задачи'); return; }
-  G = { mode, score: 0, lives: mode === 'endless' ? 3 : 0, streak: 0, bestStreak: 0, level: prefs.start, maxLevel: prefs.start, prog: 0, wrongRun: 0, n: 0, ok: 0, done: 0, last: null, task: null, input: '', locked: true, waiting: false, timers: [], raf: 0, sprintEnd: mode === 'sprint' ? performance.now() + SPRINT_MS : 0 };
+  const cfg = MODES[mode];
+  if (!cfg.cat && !prefs.cats.length) { toast('Избери поне един вид задачи'); return; }
+  const lv = cfg.cat ? 1 : prefs.start;
+  G = { mode, cfg, score: 0, lives: cfg.lives || 0, streak: 0, bestStreak: 0, level: lv, maxLevel: lv, prog: 0, wrongRun: 0, n: 0, ok: 0, done: 0, last: null, task: null, input: '', locked: true, waiting: false, timers: [], raf: 0, sprintEnd: cfg.sprint ? performance.now() + SPRINT_MS : 0 };
   touchDay(); show('play'); hud(); next();
-  if (mode === 'sprint') sprintTick();
+  if (cfg.sprint) sprintTick();
 }
 function later(fn, ms) { G.timers.push(setTimeout(fn, ms)); }
 function clearTimers() { G.timers.forEach(clearTimeout); G.timers = []; }
 
 function pickCat() {
+  if (G.cfg.cat) return G.cfg.cat;
   let pool = prefs.cats.filter(c => c !== G.last);
   if (!pool.length) pool = prefs.cats;
   if (pool.includes('logic') && Math.random() < .12) return 'logic';
@@ -706,8 +761,8 @@ function hud() {
   $('#level').textContent = G.level;
   $('#prog').innerHTML = [0, 1, 2, 3].map(i => `<i class="${i < G.prog ? 'on' : ''}"></i>`).join('');
   const side = $('#side');
-  if (G.mode === 'endless') side.innerHTML = `<div class="lives" aria-label="${G.lives} живота">${[0, 1, 2, 3, 4].slice(0, Math.max(3, G.lives)).map(i => `<i class="${i < G.lives ? 'on' : ''}"></i>`).join('')}</div>`;
-  else if (G.mode === 'sprint') side.innerHTML = `<div class="stat"><small>остават</small><b id="clock">90</b></div>`;
+  if (G.cfg.lives) side.innerHTML = `<div class="lives" aria-label="${G.lives} живота">${[0, 1, 2, 3, 4].slice(0, Math.max(3, G.lives)).map(i => `<i class="${i < G.lives ? 'on' : ''}"></i>`).join('')}</div>`;
+  else if (G.cfg.sprint) side.innerHTML = `<div class="stat"><small>остават</small><b id="clock">90</b></div>`;
   else side.innerHTML = `<div class="stat"><small>решени</small><b>${G.ok}</b></div>`;
   const s = $('#streak'); s.textContent = G.streak >= 2 ? `серия ×${G.streak}` : ''; s.className = 'streak' + (G.streak >= 2 ? '' : ' off'); s.hidden = G.streak < 2;
 }
@@ -736,7 +791,7 @@ function next() {
   $('#entry').hidden = t.type !== 'num';
   drawEntry();
   renderAnswer(t);
-  if (G.mode === 'zen') setBar(0);
+  if (!G.cfg.timed && !G.cfg.sprint) setBar(0);
   if (t.memo) {
     G.locked = true;
     q.innerHTML = t.memo.html; $('#sub').textContent = t.memo.sub;
@@ -754,7 +809,7 @@ function next() {
 }
 function go() {
   G.locked = false; G.t0 = performance.now();
-  if (G.mode === 'endless') { setBar(1, G.task.time); later(() => answer(null), G.task.time * 1000); }
+  if (G.cfg.timed) { setBar(1, G.task.time); later(() => answer(null), G.task.time * 1000); }
 }
 
 function renderAnswer(t) {
@@ -811,7 +866,7 @@ function answer(val) {
   G.locked = true; G.done++; clearTimers();
   const t = G.task;
   const ok = val !== null && (t.type === 'num' ? (t.exact ? val === t.ans : Number(val) === Number(t.ans)) : String(val) === t.ans);
-  const frac = G.mode === 'endless' ? Math.max(0, 1 - (performance.now() - G.t0) / (t.time * 1000)) : 0;
+  const frac = G.cfg.timed ? Math.max(0, 1 - (performance.now() - G.t0) / (t.time * 1000)) : 0;
   const bar = $('#bar'); const cs = getComputedStyle(bar).transform; bar.style.transition = 'none'; bar.style.transform = cs === 'none' ? '' : cs;
 
   stats.total++; if (ok) stats.correct++;
@@ -829,7 +884,7 @@ function answer(val) {
     G.score += pts;
     let msg = '';
     if (G.prog >= 4) { G.level++; G.prog = 0; G.maxLevel = Math.max(G.maxLevel, G.level); msg = `Ниво ${G.level}`; }
-    if (G.mode === 'endless' && G.streak % 10 === 0 && G.lives < 5) { G.lives++; msg = 'Серия ×' + G.streak + ' — бонус живот'; }
+    if (G.cfg.lives && G.streak % 10 === 0 && G.lives < 5) { G.lives++; msg = 'Серия ×' + G.streak + ' — бонус живот'; }
     if (msg) toast(msg);
     sheet.classList.add('good'); beep(true);
     fb.className = 'fb ok'; fb.innerHTML = `<span>Вярно!</span><span>+${pts}</span>`; fb.hidden = false;
@@ -838,10 +893,10 @@ function answer(val) {
   } else {
     G.streak = 0; G.prog = 0; G.wrongRun++;
     if (G.wrongRun >= 2 && G.level > 1) { G.level--; G.wrongRun = 0; toast(`Ниво ${G.level} — по-леко`); }
-    if (G.mode === 'endless') G.lives--;
+    if (G.cfg.lives) G.lives--;
     sheet.classList.add('bad'); beep(false);
     const shown = t.type === 'grid' ? t.show : t.type === 'num' && t.exact ? [...t.ans].join(' ') : t.ans;
-    const dead = G.mode === 'endless' && G.lives <= 0;
+    const dead = G.cfg.lives && G.lives <= 0;
     fb.className = 'fb no';
     fb.innerHTML = `<span class="t">${val === null ? 'Времето изтече.' : 'Не е вярно.'}</span><span class="a">Отговор: <b></b></span>${t.expl ? '<span class="e"></span>' : ''}<button class="go" id="goBtn">${dead ? 'Виж резултата' : 'Продължи'} ↵</button>`;
     fb.querySelector('.a b').textContent = shown;
@@ -854,7 +909,7 @@ function answer(val) {
 function cont() {
   if (!G || !G.waiting) return;
   G.waiting = false;
-  if (G.mode === 'endless' && G.lives <= 0) return end();
+  if (G.cfg.lives && G.lives <= 0) return end();
   next();
 }
 
@@ -872,10 +927,10 @@ function end() {
   clearTimers(); cancelAnimationFrame(G.raf);
   const rec = G.score > (stats.best[G.mode] || 0);
   if (rec) stats.best[G.mode] = G.score;
-  stats.bestLevel = Math.max(stats.bestLevel, G.maxLevel);
+  if (!G.cfg.cat) stats.bestLevel = Math.max(stats.bestLevel, G.maxLevel);
   save();
   const answered = G.done;
-  $('#o-mode').textContent = MODE_NAMES[G.mode];
+  $('#o-mode').textContent = G.cfg.name;
   $('#o-score').textContent = G.score;
   $('#o-rec').hidden = !(rec && G.score > 0);
   $('#o-ok').textContent = G.ok;
