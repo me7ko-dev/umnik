@@ -6,8 +6,6 @@
 **Играй:** https://me7ko-dev.github.io/umnik/
 
 - **Хранилище в GitHub:** https://github.com/me7ko-dev/umnik
-- **Папка на компютъра:** `C:\Users\roika\Projects\umnik`
-- **Частно копие (Artifact):** https://claude.ai/artifact/4yhRCwu2sj6o9uoU6M4X7E
 
 ## Режими
 - **Безкраен:** 3 живота и таймер. Всеки 10 верни подред връщат живот.
